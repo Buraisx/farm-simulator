@@ -1,10 +1,8 @@
+
 class Field
 	@@fields = []
 	@@total_harvested = 0
-	def initialize(type,size)
-		@type = type
-		@size = size
-	end
+	@@all_types = ["Corn", "Wheat", "Watermelon"]
 
 	def field_type
 		@type
@@ -12,22 +10,25 @@ class Field
 	def field_size
 		@size
 	end
+
+	def harvest 
+		return food * field_size
+	end
 	def self.create(type,size)
-		new_field = Field.new(type,size)
-		@@fields << new_field
-		return new_field
+		@@all_types.each do |field_type|
+			if field_type == type
+				new_field = Kernel.const_get(field_type).new(size)
+				@@fields << new_field
+				return new_field
+			end
+		end
 	end
 
 	def self.harvest_fields
-		harvest = 0
 		@@fields.each do |field|
-			if field.field_type == "corn"
-				harvest = 20 * field.field_size
-			else
-				harvest = 100 * field.field_size
-			end
-			@@total_harvested += harvest
-			puts "Harvesting #{harvest} food from #{field.field_size} hectare #{field.field_type} field."
+			field.harvest
+			@@total_harvested += field.harvest
+			puts "Harvesting #{field.harvest} food from #{field.field_size} hectare #{field.field_type} field."
 		end
 		return @@total_harvested
 	end
@@ -41,13 +42,54 @@ class Field
 
 	def self.descriptions
 		@@fields.each do |field|
-			if field.field_type == "corn"
-				puts "#{field.field_size} hectares of tall green stalks rustling in the breeze fill your horizon."
-			else
-				puts "The sun hangs low, casting an orange glow on a sea of #{field.field_size} hectares of wheat."
-			end
+			field.description
 		end
+	end
+end
 
+# TYPES OF FIELDS
+class Corn < Field
+	def initialize(size)
+		@type = "corn"
+		@size = size
+	end
+
+	def food
+		@food = 20
+	end
+
+	def description
+		puts "#{@size} hectares of tall green stalks rustling in the breeze fill your horizon."
+	end
+end
+
+class Wheat < Field
+	def initialize(size)
+		@type = "wheat"
+		@size = size
+	end
+
+	def food
+		@food = 100
+	end
+
+	def description
+		puts "The sun hangs low, casting an orange glow on a sea of #{@size} hectares of wheat."
+	end
+end
+
+class Watermelon < Field
+	def initialize(size)
+		@type = "Watermelon"
+		@size = size
+	end
+
+	def food
+		@food = 50
+	end 
+
+	def description
+		puts "The earth rumbles as #{@size} hecatare of watermelons crush the bodies of millions."
 	end
 end
 
@@ -85,9 +127,9 @@ class Farm
 	end
 
 	def add_field
-		puts "What kind of field is it: corn or wheat?"
+		puts "What kind of field is it: corn, wheat, or watermelon?"
 		type = gets.chomp
-
+		type.capitalize!
 		puts "How large is the field in hectares?"
 		size = gets.chomp.to_i
 		Field.create(type,size)
