@@ -1,3 +1,62 @@
+class Pasture 
+	@@animals = ["Cattle", "Sheep"]
+	@@pastures = []
+	@@total_harvested = 0
+	def self.create(type, size)
+		@@animals.each do |pasture_type|
+			if pasture_type == type
+				new_pasture = Kernel.const_get(pasture_type).new(size)
+				@@pastures << new_pasture
+				return new_pasture
+			end
+		end
+	end
+
+	def size
+		@size
+	end
+
+	def type
+		@type
+	end
+
+	def harvest
+		@size = breeding_rate * size
+		return @size
+	end
+
+	def self.harvest_pastures
+		@@pastures.each do |pasture|
+			@@total_harvested += pasture.harvest.to_i
+			puts "There are now #{pasture.size.to_i} #{pasture.type}"
+		end
+		return @@total_harvested
+	end
+end
+ class Cattle < Pasture
+ 	def initialize(size)
+ 		@size = size
+ 		@type = "cattle"
+ 	end
+ 	def new_size(new_size)
+ 		@size = new_size
+ 	end
+
+ 	def breeding_rate
+ 		@breeding_rate = 1.5
+ 	end
+ end
+
+ class Sheep < Pasture
+ 	def initialize(size)
+ 		@size = size
+ 		@type = "sheep"
+ 	end
+
+ 	def breeding_rate
+ 		@breeding_rate = 1.3
+ 	end
+ end
 
 class Field
 	@@fields = []
@@ -92,7 +151,7 @@ class Watermelon < Field
 		puts "The earth rumbles as #{@size} hecatare of watermelons crush the bodies of millions."
 	end
 end
-
+# MAIN FARM
 class Farm
 	def main_menu
 	    while true 
@@ -105,6 +164,7 @@ class Farm
 		puts '-------------------------------'
 	    puts 'Options:'
 	    puts 'field -> adds a new field'
+	    puts 'pasture -> adds a new pasture'
 	    puts 'harvest -> harvests crops and adds to total harvested'
 	    puts 'status -> displays some information about the farm'
 	    puts 'relax -> provides lovely descriptions of your fields'
@@ -117,6 +177,7 @@ class Farm
 		selection = gets.chomp
 		case selection
 		when "field" then add_field
+		when "pasture" then add_pasture
 		when "harvest" then harvest_field
 		when "status" then status_field
 		when "relax" then descriptions
@@ -135,8 +196,18 @@ class Farm
 		Field.create(type,size)
 	end
 
+	def add_pasture
+		puts "What kind of pasture is it? cattle or sheep"
+		type = gets.chomp
+		type.capitalize!
+		puts "How many #{type} do you have in your pasture."
+		size = gets.chomp.to_i
+		Pasture.create(type,size)
+	end
+
 	def harvest_field
 		puts "The farm has harvested #{Field.harvest_fields} food so far."
+		puts "there are now a total of #{Pasture.harvest_pastures} animals."
 	end
 
 	def status_field
